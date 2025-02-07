@@ -12,9 +12,12 @@ Get a concise overview of any YouTube video without watching it. Perfect for sav
 
 ## Getting Started
 ### Prerequisites
-Ensure you have:
+1. Ensure you have:
 - Python 3.10+
 - pip (Python package manager)
+
+2. Create an API key:
+- Go to the Google AI studio website: https://aistudio.google.com/app/apikey and generate a API key
  
 ### Installation
 1. Clone the repository:
@@ -22,11 +25,18 @@ Ensure you have:
 git clone https://github.com/Ede1994/youtube-AI-summarizer.git
 cd youtube-AI-summarizer
 ```
+
 2. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
-3. Run the Streamlit app:
+
+3. Create a `.env` file and paste the following into it:
+```bash
+GEMINI_API_KEY = YOUR_API_KEY
+```
+
+4. Run the Streamlit app:
 ``` bash
 streamlit run app.py
 ```
