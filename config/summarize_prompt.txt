@@ -1,0 +1,19 @@
+Task: Provide a detailed and accurate summary of the following YouTube video based on its transcript.
+
+Video Title: video_title
+Video Description: video_description
+
+Transcript:
+{transcript}
+
+Please summarize the video content must following these guidelines same format:
+1. Main Topic: Identify and explain the primary subject or theme of the video.
+2. Key Points: List and briefly explain the main ideas or arguments presented.
+3. Supporting Information: Mention any significant facts, statistics, or examples used to support the main points.
+4. Structure: Describe how the video is organized (e.g., chronological, problem-solution, comparison, etc.).
+5. Conclusion: Summarize the video's conclusion or main takeaway.
+6. Tone and Style: Comment on the presenter's tone (formal, casual, humorous, etc.) and presentation style.
+7. Target Audience: Identify who this video seems to be aimed at.
+8. Length: Provide a summary of approximately 250-300 words.
+
+Please ensure the summary is coherent, well-structured, and captures the essence of the video content.
