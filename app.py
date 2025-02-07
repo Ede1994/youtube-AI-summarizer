@@ -3,22 +3,24 @@
 
 '''
 Project:    YouTube AI Summarizer
-Date   :    08.02.2025
+Date   :    07.02.2025
 Author :    Eric Einspänner
 Mail   :    eric.einspaenner@med.ovgu.de
 '''
 
-__version__ = "0.0.1"
+__version__ = "0.1.0"
 
 
 # ***************************************************************************
 # * Import
 # ***************************************************************************
 import os
+from pathlib import Path
 import streamlit as st
 import google.generativeai as genai
 from youtube_transcript_api import YouTubeTranscriptApi
 from dotenv import load_dotenv
+from utils.utils import get_video_transcript, load_prompt
 
 
 # ***************************************************************************
@@ -39,23 +41,6 @@ genai.configure(api_key=GEMINI_API_KEY)
 # ***************************************************************************
 # * Functions
 # ***************************************************************************
-def get_video_transcript(video_id):
-    r"""
-    Get the transcript of a YouTube video.
-    
-    Args:
-        video_id (str): The ID of the YouTube video.
-    
-    Returns:
-        str: The transcript of the video.
-    """
-    try:
-        transcript = YouTubeTranscriptApi.get_transcript(video_id)
-        return " ".join([entry['text'] for entry in transcript])
-    except Exception as e:
-        return f"Error fetching transcript: {str(e)}"
-
-
 def main():
     # Set page config
     st.set_page_config(
@@ -70,31 +55,54 @@ def main():
     .big-font {
         font-size:30px !important;
         font-weight: bold;
+        text-align: center;
     }
-    .summary-box {
+    .summary-box, .notes-box {
         background-color: #f0f2f6;
         padding: 20px;
         border-radius: 10px;
         margin-top: 20px;
+        text-align: center;
+    }
+    .center-content {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+    .footer {
+        text-align: center;
+    }
+    .button-container {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
     }
     </style>
     """, unsafe_allow_html=True)
 
-    # Title with icon
-    st.markdown('<p class="big-font">🎥 YouTube AI Summarizer</p>', unsafe_allow_html=True)
+    # Center the main content
+    st.markdown('<div class="center-content">', unsafe_allow_html=True)
 
-    # Subtitle
-    st.write("📝 Get a quick summary of any YouTube video!")
+    # Title with icon
+    st.markdown('<p class="big-font">YouTube AI Summarizer</p>', unsafe_allow_html=True)
 
     # Input field with icon
     youtube_url = st.text_input("🔗 Enter your YouTube video URL here:")
 
-    # Button with icon
+    # Load prompts
+    summarize_prompt = load_prompt("config/summarize_prompt.txt")
+    notes_prompt = load_prompt("config/notes_prompt.txt")
+
+    # Button container
+    st.markdown('<div class="button-container">', unsafe_allow_html=True)
+
+    # Summarize button
     if st.button("🚀 Summarize"):
         if GEMINI_API_KEY is None:
             st.error("❌ API Key is not set. Please set the API key in the .env file.")
         else:
-            with st.spinner("🔍 Analyzing video content..."):
+            with st.spinner("🔍 Analyzing video content (this can take a few minutes)..."):
                 # Extract video ID from URL
                 video_id = youtube_url.split("v=")[1] if "v=" in youtube_url else youtube_url.split("/")[-1]
                 
@@ -102,28 +110,7 @@ def main():
                 transcript = get_video_transcript(video_id)
                 
                 # Prepare prompt for Gemini
-                # Can customize the prompt as per needed
-                prompt = f"""
-                Task: Provide a detailed and accurate summary of the following YouTube video based on its transcript.
-
-                Video Title: video_title
-                Video Description: video_description
-
-                Transcript:
-                {transcript}
-
-                Please summarize the video content must following these guidelines same format:
-                1. Main Topic: Identify and explain the primary subject or theme of the video.
-                2. Key Points: List and briefly explain the main ideas or arguments presented.
-                3. Supporting Information: Mention any significant facts, statistics, or examples used to support the main points.
-                4. Structure: Describe how the video is organized (e.g., chronological, problem-solution, comparison, etc.).
-                5. Conclusion: Summarize the video's conclusion or main takeaway.
-                6. Tone and Style: Comment on the presenter's tone (formal, casual, humorous, etc.) and presentation style.
-                7. Target Audience: Identify who this video seems to be aimed at.
-                8. Length: Provide a summary of approximately 250-300 words.
-
-                Please ensure the summary is coherent, well-structured, and captures the essence of the video content.
-                """
+                prompt = summarize_prompt.format(transcript=transcript)
                 
                 # Generate summary
                 response = model.generate_content(prompt)
@@ -134,6 +121,36 @@ def main():
                 st.write(response.text)
                 st.markdown('</div>', unsafe_allow_html=True)
 
+    # Notes button
+    if st.button("📝 Notes"):
+        if GEMINI_API_KEY is None:
+            st.error("❌ API Key is not set. Please set the API key in the .env file.")
+        else:
+            with st.spinner("🔍 Analyzing video content (this can take a few minutes)..."):
+                # Extract video ID from URL
+                video_id = youtube_url.split("v=")[1] if "v=" in youtube_url else youtube_url.split("/")[-1]
+                
+                # Get video transcript
+                transcript = get_video_transcript(video_id)
+                
+                # Prepare prompt for Gemini
+                prompt = notes_prompt.format(transcript=transcript)
+                
+                # Generate notes
+                response = model.generate_content(prompt)
+                
+                # Display notes in a styled box
+                st.markdown('<div class="notes-box">', unsafe_allow_html=True)
+                st.subheader("📊 Video Notes")
+                st.write(response.text)
+                st.markdown('</div>', unsafe_allow_html=True)
+
+    # Close the button-container div
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # Close the center-content div
+    st.markdown('</div>', unsafe_allow_html=True)
+
     # Add some space
     st.write("")
     st.write("")
@@ -141,7 +158,7 @@ def main():
     # Footer
     st.markdown("""
     <div class="footer">
-        <p>Developed  by Eric Einspänner</p>
+        <p>Developed by Eric Einspänner</p>
         <a href="https://github.com/Ede1994" target="_blank"><i class="fab fa-github social-icons"></i></a>
     </div>
     """, unsafe_allow_html=True)
@@ -153,7 +170,7 @@ def main():
 
 
 # ***************************************************************************
-# * Main 
+# * Main
 # ***************************************************************************
 if __name__ == "__main__":
     main()
