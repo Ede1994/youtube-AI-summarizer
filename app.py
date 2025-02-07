@@ -8,19 +8,16 @@ Author :    Eric Einspänner
 Mail   :    eric.einspaenner@med.ovgu.de
 '''
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 
 # ***************************************************************************
 # * Import
 # ***************************************************************************
 import os
-from pathlib import Path
 import streamlit as st
-# import google.generativeai as genai
 from google import genai
 from mistralai import Mistral
-from youtube_transcript_api import YouTubeTranscriptApi
 from dotenv import load_dotenv
 from utils.utils import get_video_transcript, load_prompt
 
@@ -137,6 +134,31 @@ def main():
     # Title with icon
     st.markdown('<p class="big-font">YouTube AI Summarizer</p>', unsafe_allow_html=True)
 
+
+    # Initialize session state for selected_model
+    if 'selected_model' not in st.session_state:
+        st.session_state.selected_model = None
+    
+    # Initialize response
+    response = ""
+
+    # Mistral and Gemini buttons side by side in the center
+    st.markdown('<div class="button-container">', unsafe_allow_html=True)
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        if st.button("〽️ Mistral", use_container_width=True):
+            # selected_model = "mistral"
+            st.session_state.selected_model = "mistral"
+    with col2:
+        if st.button("🤖 Gemini", use_container_width=True):
+            st.session_state.selected_model = "gemini"
+    with col3:
+        if st.button("More is coming!", use_container_width=True):
+            st.write("More is coming!")
+            st.session_state.selected_model = None
+
+
     # Input field with icon
     youtube_url = st.text_input("🔗 Enter your YouTube video URL here:")
 
@@ -145,57 +167,63 @@ def main():
     notes_prompt = load_prompt("config/notes_prompt.txt")
 
     # Button container
-    st.markdown('<div class="button-container">', unsafe_allow_html=True)
+    st.markdown('<div class="button-container2">', unsafe_allow_html=True)
+    col4, col5 = st.columns(2)
 
     # Summarize button
-    if st.button("🚀 Summarize"):
-        if GEMINI_API_KEY is None:
-            st.error("❌ API Key is not set. Please set the API key in the .env file.")
-        else:
-            with st.spinner("🔍 Analyzing video content (this can take a few minutes)..."):
-                # Extract video ID from URL
-                video_id = youtube_url.split("v=")[1] if "v=" in youtube_url else youtube_url.split("/")[-1]
-                
-                # Get video transcript
-                transcript = get_video_transcript(video_id)
-                
-                # Prepare prompt for Gemini
-                prompt = summarize_prompt.format(transcript=transcript)
-                
-                # Generate summary
-                response = gemini_chat(content=prompt)
-                # response = mistral_chat(content=prompt)
-                
-                # Display summary in a styled box
-                st.markdown('<div class="summary-box">', unsafe_allow_html=True)
-                st.subheader("📊 Video Summary")
-                st.write(response)
-                st.markdown('</div>', unsafe_allow_html=True)
+    with col4:
+        if st.button("🚀 Summarize", use_container_width=True):
+            if GEMINI_API_KEY is None:
+                st.error("❌ Gemini API Key is not set. Please set the API key in the .env file.")
+            elif MISTRAL_API_KEY is None and st.session_state.selected_model == "mistral":
+                st.error("❌ Mistral API Key is not set. Please set the API key in the .env file.")
+            else:
+                with st.spinner("🔍 Analyzing video content (this can take a few minutes)..."):
+                    # Extract video ID from URL
+                    video_id = youtube_url.split("v=")[1] if "v=" in youtube_url else youtube_url.split("/")[-1]
+                    
+                    # Get video transcript
+                    transcript = get_video_transcript(video_id)
+                    
+                    # Prepare prompt for Gemini
+                    prompt = summarize_prompt.format(transcript=transcript)
+                    
+                    # Generate summary
+                    if st.session_state.selected_model == "gemini":
+                        response = gemini_chat(content=prompt)
+                    elif st.session_state.selected_model == "mistral":
+                        response = mistral_chat(content=prompt)
+
 
     # Notes button
-    if st.button("📝 Notes"):
-        if GEMINI_API_KEY is None:
-            st.error("❌ API Key is not set. Please set the API key in the .env file.")
-        else:
-            with st.spinner("🔍 Analyzing video content (this can take a few minutes)..."):
-                # Extract video ID from URL
-                video_id = youtube_url.split("v=")[1] if "v=" in youtube_url else youtube_url.split("/")[-1]
-                
-                # Get video transcript
-                transcript = get_video_transcript(video_id)
-                
-                # Prepare prompt for Gemini
-                prompt = notes_prompt.format(transcript=transcript)
-                
-                # Generate notes
-                response = gemini_chat(content=prompt)
-                # response = mistral_chat(content=prompt)
-                
-                # Display notes in a styled box
-                st.markdown('<div class="notes-box">', unsafe_allow_html=True)
-                st.subheader("📊 Video Notes")
-                st.write(response)
-                st.markdown('</div>', unsafe_allow_html=True)
+    with col5:
+        if st.button("📝 Notes", use_container_width=True):
+            if GEMINI_API_KEY is None:
+                st.error("❌ Gemini API Key is not set. Please set the API key in the .env file.")
+            elif MISTRAL_API_KEY is None and st.session_state.selected_model == "mistral":
+                st.error("❌ Mistral API Key is not set. Please set the API key in the .env file.")
+            else:
+                with st.spinner("🔍 Analyzing video content (this can take a few minutes)..."):
+                    # Extract video ID from URL
+                    video_id = youtube_url.split("v=")[1] if "v=" in youtube_url else youtube_url.split("/")[-1]
+                    
+                    # Get video transcript
+                    transcript = get_video_transcript(video_id)
+                    
+                    # Prepare prompt for Gemini
+                    prompt = notes_prompt.format(transcript=transcript)
+                    
+                    # Generate notes
+                    if st.session_state.selected_model == "gemini":
+                        response = gemini_chat(content=prompt)
+                    elif st.session_state.selected_model == "mistral":
+                        response = mistral_chat(content=prompt)
+                    
+    # Display response in a styled box
+    st.markdown('<div class="response-box">', unsafe_allow_html=True)
+    st.subheader("📊 Response")
+    st.write(response)
+    st.markdown('</div>', unsafe_allow_html=True)
 
     # Close the button-container div
     st.markdown('</div>', unsafe_allow_html=True)
