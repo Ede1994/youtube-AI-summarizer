@@ -1,6 +1,23 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+'''
+Date   :    08.02.2025
+Author :    Eric Einspänner
+Mail   :    eric.einspaenner@med.ovgu.de
+'''
+
+
+# ***************************************************************************
+# * Import
+# ***************************************************************************
 from pathlib import Path
 from youtube_transcript_api import YouTubeTranscriptApi
 
+
+# ***************************************************************************
+# * Functions
+# ***************************************************************************
 def get_video_transcript(video_id):
     r"""
     Get the transcript of a YouTube video.

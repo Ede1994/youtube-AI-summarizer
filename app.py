@@ -3,12 +3,12 @@
 
 '''
 Project:    YouTube AI Summarizer
-Date   :    07.02.2025
+Date   :    08.02.2025
 Author :    Eric Einspänner
 Mail   :    eric.einspaenner@med.ovgu.de
 '''
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 
 
 # ***************************************************************************
@@ -16,9 +16,8 @@ __version__ = "0.2.0"
 # ***************************************************************************
 import os
 import streamlit as st
-from google import genai
-from mistralai import Mistral
 from dotenv import load_dotenv
+from utils.models import gemini_chat, mistral_chat
 from utils.utils import get_video_transcript, load_prompt
 
 
@@ -28,61 +27,12 @@ from utils.utils import get_video_transcript, load_prompt
 # Load environment variables
 load_dotenv()
 
-### Google Gemini
-# Get API keys from environment variables
+### Get API keys from environment variables
+# Google Gemini
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
-def gemini_chat(content, api_key=GEMINI_API_KEY, model="gemini-2.0-flash"):
-    r"""
-    Chat with the Gemini API.
-    
-    Args:
-        api_key (str): The API key for the Gemini API.
-        model (str): The model to use for the chat.
-        content (str): The content to send to the API.
-    
-    Returns:
-        str: The response from the API.
-    """
-    # Initialize the Gemini API
-    client = genai.Client(api_key=api_key)
-    
-    # Chat with the API
-    response = client.models.generate_content(model=model,
-                                              contents=content)
-    
-    # Return the response
-    return response.text
-
-
-### Mistral
+# Mistral
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
-
-def mistral_chat(content, api_key=MISTRAL_API_KEY, model="mistral-small-latest"):
-    r"""
-    Chat with the Mistral API.
-    
-    Args:
-        api_key (str): The API key for the Mistral API.
-        model (str): The model to use for the chat.
-        messages (list): A list of messages to send to the API.
-    
-    Returns:
-        str: The response from the API.
-    """
-    # Initialize the Mistral API
-    mistral = Mistral(api_key=api_key)
-    
-    # Chat with the API
-    response = mistral.chat.complete(model=model, messages=[
-        {
-            "content": content,
-            "role": "user",
-        },
-    ], stream=False)
-
-    # Return the response
-    return response.choices[0].message.content
 
 
 # ***************************************************************************
@@ -190,9 +140,9 @@ def main():
                     
                     # Generate summary
                     if st.session_state.selected_model == "gemini":
-                        response = gemini_chat(content=prompt)
+                        response = gemini_chat(content=prompt, api_key=GEMINI_API_KEY)
                     elif st.session_state.selected_model == "mistral":
-                        response = mistral_chat(content=prompt)
+                        response = mistral_chat(content=prompt, api_key=MISTRAL_API_KEY)
 
 
     # Notes button
@@ -215,9 +165,9 @@ def main():
                     
                     # Generate notes
                     if st.session_state.selected_model == "gemini":
-                        response = gemini_chat(content=prompt)
+                        response = gemini_chat(content=prompt, api_key=GEMINI_API_KEY)
                     elif st.session_state.selected_model == "mistral":
-                        response = mistral_chat(content=prompt)
+                        response = mistral_chat(content=prompt, api_key=MISTRAL_API_KEY)
                     
     # Display response in a styled box
     st.markdown('<div class="response-box">', unsafe_allow_html=True)
