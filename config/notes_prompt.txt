@@ -1,13 +1,14 @@
-Task: Provide notes on the following video based on its transcript.
+Task: Create detailed notes based on the transcript of the video.
 
-Video Title: video_title
-Video Description: video_description
+Video title: video_title
+Video description: video_description
 
 Transcript:
 {transcript}
 
-Create a set of notes based on the video content.
-The notes should be concise and capture the main ideas, arguments, and key points presented in the video.
-You can use bullet points, short sentences, or any other format that you find suitable.
+Create a comprehensive collection of notes that accurately reflect the content of the video. The notes should cover all important points, arguments and key concepts presented in the video.
 
-Please ensure the notes are clear, organized, and easy to read.
+Use bullet points, short sentences or other appropriate formats to organize your notes.
+Make sure the notes are clear, concise and easy to read.
+
+Try to create your notes as if you were writing them down during a lecture. Make sure to include all important details, examples and explanations mentioned in the video.
