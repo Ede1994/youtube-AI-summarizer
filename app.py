@@ -188,7 +188,7 @@ def main():
     # Footer
     st.markdown("""
     <div class="footer">
-        <p>Developed by Eric Einspänner</p>
+        <p>Developed by Ede1994</p>
         <a href="https://github.com/Ede1994" target="_blank"><i class="fab fa-github social-icons"></i></a>
     </div>
     """, unsafe_allow_html=True)
