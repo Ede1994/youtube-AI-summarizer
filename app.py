@@ -3,12 +3,12 @@
 
 '''
 Project:    YouTube AI Summarizer
-Date   :    08.02.2025
+Date   :    18.02.2025
 Author :    Eric Einspänner
 Mail   :    eric.einspaenner@med.ovgu.de
 '''
 
-__version__ = "0.3.0"
+__version__ = "0.3.1"
 
 
 # ***************************************************************************
